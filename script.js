@@ -1,8 +1,13 @@
 const gameContainer = document.getElementById("game");
+const startGameBtn = document.getElementById("startGame_btn");
+const restartGameBtn = document.getElementById("restart_btn");
+const scoreboard = document.getElementById("currentScore");
+const bestScoreboard = document.getElementById("highscore");
 let clickedCard1;
 let clickedCard2;
 let cardFlipCount = 0;
 let matchedCards = 0;
+let score = 0;
 
 const COLORS = [
   "red",
@@ -83,11 +88,13 @@ function handleCardClick(event) {
     if (cardFlipCount < 2){
       event.target.style.backgroundColor = event.target.className
       cardFlipCount = ++cardFlipCount;
-      console.log(`card flip count: ${cardFlipCount}`);
       if (cardFlipCount === 1){
         clickedCard1 = event.target;
       }else if (cardFlipCount === 2){
         clickedCard2 = event.target;
+        //increment the score by 1 and display
+        score = ++score;
+        scoreboard.innerHTML = `Score: ${score}`;
         if (clickedCard1.className === clickedCard2.className){
           cardFlipCount = 0;
           //remove the classNames from the matched elements
@@ -103,10 +110,42 @@ function handleCardClick(event) {
       }
     }
     if(matchedCards === COLORS.length){
-      console.log("DONE!");
+      //compare score against highscore
+      if(localStorage.getItem("highscore")==="[No High Score]" || score < +localStorage.getItem("highscore")){
+        alert("New Best Score!");
+        localStorage.setItem("highscore", score);
+      }
+      bestScoreboard.innerHTML = `Score to Beat: ${localStorage.getItem("highscore")}`;
+      //display restart button
+      restartGameBtn.hidden = false;
     }
   }
 }
 
 // when the DOM loads
-createDivsForColors(shuffledColors);
+restartGameBtn.hidden = true;
+
+//display the best score stored in localStorage
+bestScoreboard.innerHTML = `Score to Beat: ${localStorage.getItem("highscore")}`;
+
+startGameBtn.addEventListener("click", function(){
+  createDivsForColors(shuffledColors);
+  console.log(gameContainer.children);
+  startGameBtn.hidden = true;
+})
+
+restartGameBtn.addEventListener("click", function(){
+  //remove all divs
+  while (gameContainer.lastChild) {
+    gameContainer.removeChild(gameContainer.lastChild);
+  }
+  //reset all counters
+  cardFlipCount = 0;
+  matchedCards = 0;
+  score = 0;
+  scoreboard.innerHTML = `Score: 0`;
+  //resuffle the COLORS array and reinitiate the divs and color designations
+  shuffledColors = shuffle(COLORS);
+  createDivsForColors(shuffledColors);
+  restartGameBtn.hidden = true;
+})
