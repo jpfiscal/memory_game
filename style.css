@@ -7,6 +7,13 @@ h1{
 #highscore{
   font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 }
+#diffSection{
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+#diffBoard{
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  color:rgb(74, 74, 74);
+}
 #game div {
   border: 1px solid black;
   width: 15%;

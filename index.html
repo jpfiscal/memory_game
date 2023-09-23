@@ -9,7 +9,17 @@
     <h1>Memory Game!</h1>
     <h2 id="currentScore">Score: 0</h2>
     <h3 id="highscore"></h3>
+    <h3 id="diffBoard"></h3>
     <button id="startGame_btn">START</button>
+    <section id="diffSection">
+      <input id="easy" type="radio" name="diffSetting" value="Easy" checked>
+      <label for="easy">Easy</label><br>
+      <input id="int" type="radio" name="diffSetting" value="Intermediate">
+      <label for="int">Intermediate</label><br>
+      <input id="hard" type="radio" name="diffSetting" value="Hard">
+      <label for="hard">Hard</label><br>
+    </section>
+    
     <button id="restart_btn">RESTART</button>
     <div id="game">
     </div>

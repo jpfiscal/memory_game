@@ -3,24 +3,62 @@ const startGameBtn = document.getElementById("startGame_btn");
 const restartGameBtn = document.getElementById("restart_btn");
 const scoreboard = document.getElementById("currentScore");
 const bestScoreboard = document.getElementById("highscore");
+const difficultyBtn = document.getElementById("diffSection");
+const difficultyBoard = document.getElementById("diffBoard");
+let COLORS = [];
+let scoreToBeat = "[No High Score]";
 let clickedCard1;
 let clickedCard2;
 let cardFlipCount = 0;
 let matchedCards = 0;
 let score = 0;
+let difficulty = document.querySelector('input[name="diffSetting"]:checked').value;
+let pairCount = 5;
+let shuffledColors;
 
-const COLORS = [
-  "red",
-  "blue",
-  "green",
-  "orange",
-  "purple",
-  "red",
-  "blue",
-  "green",
-  "orange",
-  "purple"
-];
+function setPairCount(){
+  if (difficulty === "Easy"){
+    pairCount = 5;
+  }else if (difficulty === "Intermediate"){
+    pairCount = 10;
+  }else if (difficulty === "Hard"){
+    pairCount = 15;
+  }else{
+    pairCount = 5;
+    console.log("default pair count")
+  }
+}
+
+function getHighScore(diff){
+  if (diff === "Easy"){
+    scoreToBeat = localStorage.getItem("highscore_easy");
+  }else if (diff === "Intermediate"){
+    scoreToBeat = localStorage.getItem("highscore_int");
+  }else if (diff === "Hard"){
+    scoreToBeat = localStorage.getItem("highscore_hard");
+  }
+}
+
+function setHighScore(score){
+  if (difficulty === "Easy"){
+    scoreToBeat = localStorage.setItem("highscore_easy",score);
+  }else if (difficulty === "Intermediate"){
+    scoreToBeat = localStorage.setItem("highscore_int",score);
+  }else if (difficulty === "Hard"){
+    scoreToBeat = localStorage.setItem("highscore_hard",score);
+  }
+}
+
+function createColorsArray(pairs){
+  for (let i = 0; i<pairs; i++){
+    //generate a random color
+    let color = genRgbColor()
+    //create pair of color cards in COLORS array
+    COLORS.push(color);
+    COLORS.push(color);
+  }
+  console.log(COLORS);
+}
 
 // here is a helper function to shuffle an array
 // it returns the same array with values shuffled
@@ -41,7 +79,6 @@ function shuffle(array) {
     array[counter] = array[index];
     array[index] = temp;
   }
-
   return array;
 }
 // function dedicated to resetting 
@@ -55,8 +92,6 @@ function flipCardsBack(){
     clickedCard2 = null;
   }, 1000);
 }
-
-let shuffledColors = shuffle(COLORS);
 
 // this function loops over the array of colors
 // it creates a new div and gives it a class with the value of the color
@@ -75,6 +110,13 @@ function createDivsForColors(colorArray) {
     // append the div to the element with an id of game
     gameContainer.append(newDiv);
   }
+}
+
+function genRgbColor(){
+  let r = Math.floor(Math.random() * 255);
+  let g = Math.floor(Math.random() * 255);
+  let b = Math.floor(Math.random() * 255);
+  return `rgb(${r},${g},${b})`;
 }
 
 // TODO: Implement this function!
@@ -111,28 +153,45 @@ function handleCardClick(event) {
     }
     if(matchedCards === COLORS.length){
       //compare score against highscore
-      if(localStorage.getItem("highscore")==="[No High Score]" || score < +localStorage.getItem("highscore")){
+      if(scoreToBeat ==="[No High Score]" || score < +scoreToBeat){
         alert("New Best Score!");
-        localStorage.setItem("highscore", score);
+        setHighScore(score);
       }
-      bestScoreboard.innerHTML = `Score to Beat: ${localStorage.getItem("highscore")}`;
+      getHighScore(difficulty);
+      bestScoreboard.innerHTML = `Score to Beat: ${scoreToBeat}`;
+      //display difficulty section
+      difficultyBtn.hidden = false;
       //display restart button
       restartGameBtn.hidden = false;
+      //empty out the array
+      COLORS = [];
     }
   }
 }
 
-// when the DOM loads
-restartGameBtn.hidden = true;
-
 //display the best score stored in localStorage
-bestScoreboard.innerHTML = `Score to Beat: ${localStorage.getItem("highscore")}`;
+bestScoreboard.innerHTML = `Score to Beat: ${scoreToBeat}`;
 
 startGameBtn.addEventListener("click", function(){
-  createDivsForColors(shuffledColors);
-  console.log(gameContainer.children);
   startGameBtn.hidden = true;
+  difficultyBtn.hidden = true;
+  createColorsArray(pairCount);
+  shuffledColors = shuffle(COLORS);
+  createDivsForColors(shuffledColors);
+  //set the scoreboard based on difficulty
+  scoreboard.innerHTML = `Score: 0`;
+  difficultyBoard.innerHTML = `difficulty: ${difficulty}`;
+  getHighScore(difficulty);
+  bestScoreboard.innerHTML = `Score to Beat: ${scoreToBeat}`;
+  console.log(gameContainer.children);
 })
+
+difficultyBtn.addEventListener("click", function(e){
+  //reassign difficulty setting based on the selected radio button
+  difficulty = document.querySelector('input[name="diffSetting"]:checked').value;
+  setPairCount();
+  console.log(`${difficulty}: ${pairCount}`)
+})  
 
 restartGameBtn.addEventListener("click", function(){
   //remove all divs
@@ -143,9 +202,29 @@ restartGameBtn.addEventListener("click", function(){
   cardFlipCount = 0;
   matchedCards = 0;
   score = 0;
+  //reset the scoreboards
   scoreboard.innerHTML = `Score: 0`;
-  //resuffle the COLORS array and reinitiate the divs and color designations
+  getHighScore(difficulty);
+  bestScoreboard.innerHTML = `Score to Beat: ${scoreToBeat}`;
+  difficultyBoard.innerHTML = `difficulty: ${difficulty}`;
+  //recreate the COLORS array and shuffle
+  createColorsArray(pairCount);
   shuffledColors = shuffle(COLORS);
   createDivsForColors(shuffledColors);
   restartGameBtn.hidden = true;
+  difficultyBtn.hidden = true;
 })
+
+// when the DOM loads
+restartGameBtn.hidden = true;
+
+//initialize high scores in local storage for first time players
+if(localStorage.getItem("highscore_easy")===null){
+  localStorage.setItem("highscore_easy","[No High Score]")
+}
+if(localStorage.getItem("highscore_int")===null){
+  localStorage.setItem("highscore_int","[No High Score]")
+}
+if(localStorage.getItem("highscore_hard")===null){
+  localStorage.setItem("highscore_hard","[No High Score]")
+}
