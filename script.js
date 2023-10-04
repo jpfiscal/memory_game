@@ -31,21 +31,21 @@ function setPairCount(){
 
 function getHighScore(diff){
   if (diff === "Easy"){
-    scoreToBeat = localStorage.getItem("highscore_easy");
+    scoreToBeat = localStorage.getItem("highscoreEasy");
   }else if (diff === "Intermediate"){
-    scoreToBeat = localStorage.getItem("highscore_int");
+    scoreToBeat = localStorage.getItem("highscoreInt");
   }else if (diff === "Hard"){
-    scoreToBeat = localStorage.getItem("highscore_hard");
+    scoreToBeat = localStorage.getItem("highscoreHard");
   }
 }
 
 function setHighScore(score){
   if (difficulty === "Easy"){
-    scoreToBeat = localStorage.setItem("highscore_easy",score);
+    scoreToBeat = localStorage.setItem("highscoreEasy",score);
   }else if (difficulty === "Intermediate"){
-    scoreToBeat = localStorage.setItem("highscore_int",score);
+    scoreToBeat = localStorage.setItem("highscoreInt",score);
   }else if (difficulty === "Hard"){
-    scoreToBeat = localStorage.setItem("highscore_hard",score);
+    scoreToBeat = localStorage.setItem("highscoreHard",score);
   }
 }
 
@@ -121,14 +121,15 @@ function genRgbColor(){
 
 // TODO: Implement this function!
 function handleCardClick(event) {
-  // you can use event.target to see which element was clicked
+  // If you click on a card that's already been matched then do nothing
   if (event.target.classList.contains("matched")){
     return;
+  //If you attempt to click on a card that you've already revealed on your first guest, do nothing
   }else if (event.target === clickedCard1){
     return;
   }else{
     if (cardFlipCount < 2){
-      event.target.style.backgroundColor = event.target.className
+      event.target.style.backgroundColor = event.target.className //change the color of the clicked card to the designated color (by class name)
       cardFlipCount = ++cardFlipCount;
       if (cardFlipCount === 1){
         clickedCard1 = event.target;
@@ -139,7 +140,7 @@ function handleCardClick(event) {
         scoreboard.innerHTML = `Score: ${score}`;
         if (clickedCard1.className === clickedCard2.className){
           cardFlipCount = 0;
-          //remove the classNames from the matched elements
+          //add the "matched" class to the matched cards to prevent users from clicking it again
           clickedCard1.classList.add("matched");
           matchedCards++;
           clickedCard2.classList.add("matched");
@@ -190,8 +191,10 @@ difficultyBtn.addEventListener("click", function(e){
   //reassign difficulty setting based on the selected radio button
   difficulty = document.querySelector('input[name="diffSetting"]:checked').value;
   setPairCount();
-  console.log(`${difficulty}: ${pairCount}`)
-})  
+  console.log(`${difficulty}: ${pairCount}`);
+  getHighScore(difficulty);
+  bestScoreboard.innerText = `Score to Beat: ${scoreToBeat}`;
+}) 
 
 restartGameBtn.addEventListener("click", function(){
   //remove all divs
@@ -219,12 +222,16 @@ restartGameBtn.addEventListener("click", function(){
 restartGameBtn.hidden = true;
 
 //initialize high scores in local storage for first time players
-if(localStorage.getItem("highscore_easy")===null){
-  localStorage.setItem("highscore_easy","[No High Score]")
+if(localStorage.getItem("highscoreEasy")===null){
+  localStorage.setItem("highscoreEasy","[No High Score]")
 }
-if(localStorage.getItem("highscore_int")===null){
-  localStorage.setItem("highscore_int","[No High Score]")
+if(localStorage.getItem("highscoreInt")===null){
+  localStorage.setItem("highscoreInt","[No High Score]")
 }
-if(localStorage.getItem("highscore_hard")===null){
-  localStorage.setItem("highscore_hard","[No High Score]")
+if(localStorage.getItem("highscoreHard")===null){
+  localStorage.setItem("highscoreHard","[No High Score]")
 }
+
+//initialize best score based on the fact that the default difficulty selected is "Easy"
+getHighScore("Easy");
+bestScoreboard.innerText = `Score to Beat: ${scoreToBeat}`;
